@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,14 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_zk=9yl=ul!po@_z-)wq&x4=&!(ons2(pogyu52+f7f37v3j$y'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+APPEND_SLASH=False
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,11 +40,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # OAUTH
+    # 'django.contrib.sites',  # must
+    # 'allauth',  # must
+    # 'allauth.account',  # must
+    # 'allauth.socialaccount',  # must
+    # 'allauth.socialaccount.providers.google',  # new
+
+    # JWT+Rest
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
-    'account',
     'django_rest_passwordreset',
+    'rest_framework_simplejwt.token_blacklist',
+
+    # apps:
+    'user.apps.UserConfig',
+    'channel.apps.ChannelConfig',
+    'feedback.apps.FeedbackConfig',
+    'video.apps.VideoConfig'
 ]
 
 MIDDLEWARE = [
@@ -81,12 +97,18 @@ WSGI_APPLICATION = 'djangoauthapi1.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'Nimbl',
+        'USER': 'postgres',
+        'PASSWORD': '1000',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
+
 
 # JWT Configuration
 REST_FRAMEWORK = {
@@ -137,14 +159,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'account.User'
+AUTH_USER_MODEL = 'user.User'
 
 # Email Configuration
 EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS')
+EMAIL_HOST_USER = config('EMAIL_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_PASS')
 EMAIL_USE_TLS = True
 
 
@@ -173,3 +195,26 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+SITE_ID = 1
+#
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    #
+    # `allauth` specific authentication methods, such as login by e-mail
+    # 'allauth.user.auth_backends.AuthenticationBackend',
+]
+#
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google' : {
+        'SCOPE':[
+            'profile',
+            'email'
+        ]
+    }
+}
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+LOGIN_REDIRECT_URL = '/'

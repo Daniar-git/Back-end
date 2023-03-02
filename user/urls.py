@@ -1,5 +1,5 @@
 from django.urls import path, include
-from account.views import SendPasswordResetEmailView, ChangePasswordView, UserLoginView, UserProfileView, UserRegistrationView, UserPasswordResetView
+from user.views import SendPasswordResetEmailView, ChangePasswordView, UserLoginView, UserProfileView, UserRegistrationView, UserPasswordResetView
 urlpatterns = [
     path('register/', UserRegistrationView.as_view(), name='register'),
     path('login/', UserLoginView.as_view(), name='login'),
